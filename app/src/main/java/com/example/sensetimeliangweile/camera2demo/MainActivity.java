@@ -15,6 +15,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Size;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
@@ -56,38 +58,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         checkPermissionsAndRequestIfNeed();
         super.onCreate(savedInstanceState);
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
 
-
-        try {
-            mCameraManager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
-            String[] cameraIDs = mCameraManager.getCameraIdList();
-            int backID = 0;
-            for (int i = 0; i < cameraIDs.length; i++) {
-                CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(cameraIDs[i]);
-                int facing = characteristics.get(CameraCharacteristics.LENS_FACING);
-                if (CameraCharacteristics.LENS_FACING_BACK == facing) {
-                    mCameraID = cameraIDs[i];
-                    mCharacteristics = characteristics;
-                    break;
-                }
-
-            }
-
-            StreamConfigurationMap map = mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-            Size[] previewSizes = map.getOutputSizes(SurfaceTexture.class);
-            for (int i = 0; i < previewSizes.length; i++) {
-                Log.d("lwl_texture", previewSizes[i].toString());
-            }
-
-            Size[] jpegSizes=map.getOutputSizes(ImageFormat.JPEG);
-            for(int i=0;i<jpegSizes.length;i++){
-                Log.d("lwl_jpeg", jpegSizes[i].toString());
-            }
-
-        } catch (CameraAccessException e) {
-            e.printStackTrace();
-        }
+        getSupportFragmentManager().beginTransaction().replace(R.id.container, Camera2Fragment.newInstance()).commit();
 
     }
 }
